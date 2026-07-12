@@ -7,30 +7,26 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
-    <header class="w3-container w3-teal">
-        <h1>Анімація</h1>
-    </header>
-
-    <div class="w3-container w3-padding-32">
-        <p>Натисніть кнопку, щоб побачити сучасне модальне вікно:</p>
-        <p class="triggerModal w3-button w3-blue">Показати повідомлення</p>
+<div class="w3-container w3-padding-32">
+        <p>Натисніть кнопку:</p>
+        <p class="triggerModal" style="cursor:pointer; background:blue; color:white; padding:10px;">Показати повідомлення</p>
     </div>
 
-    <div class="customModal w3-modal">
-        <div class="w3-modal-content w3-card-4">
-            <header class="w3-container w3-teal">
-                <span class="closeModal w3-button w3-display-topright">&times;</span>
+    <div class="customModal">
+        <div class="w3-modal-content">
+            <header>
+                <span class="closeModal">&times;</span>
                 <h2 class="modalTitle">Заголовок</h2>
             </header>
-            <div class="w3-container">
+            <div>
                 <p class="modalMessage"></p>
             </div>
-            <footer class="w3-container w3-teal">
-                <p class="modalBtn w3-button w3-margin">ОК</p>
+            <footer>
+                <p class="modalBtn">ОК</p>
             </footer>
         </div>
     </div>
+
 
     <script src="js/main.js" defer></script>
 </body>
