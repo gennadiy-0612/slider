@@ -63,8 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
     buttonSelector: '.openModalBtn',
     onOpen: () => alert('Модальне вікно відкрите!'),
     onClose: () => {
-      alert('Модальне вікно закрите. Очищення даних...');
-      // Тут можна додати логіку очищення форми
+    alert('Модальне вікно закрите. Очищення даних...');
     }
   });
 });
