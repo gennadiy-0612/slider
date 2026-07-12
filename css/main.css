@@ -10,7 +10,7 @@
     transition: opacity 1s ease;
 }
 
-.customModal.show {
+.show {
     display: flex;
     justify-content: center;
     align-items: center;
