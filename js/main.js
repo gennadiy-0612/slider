@@ -53,3 +53,4 @@ document.addEventListener('DOMContentLoaded', () => {
     modal.show('Вітаємо!', 'Код оновлено до сучасних стандартів ES6+');
   });
 });
+
