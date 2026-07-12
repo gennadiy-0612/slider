@@ -61,9 +61,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const modal = new ModalService({
     modalSelector: '.customModal',
     buttonSelector: '.openModalBtn',
-    onOpen: () => console.log('Модальне вікно відкрите!'),
+    onOpen: () => alert('Модальне вікно відкрите!'),
     onClose: () => {
-      console.log('Модальне вікно закрите. Очищення даних...');
+      alert('Модальне вікно закрите. Очищення даних...');
       // Тут можна додати логіку очищення форми
     }
   });
