@@ -1,14 +1,38 @@
-/* Базовий стан модального вікна */
+/* Базовий вигляд модального вікна (фон) */
 #customModal {
-    display: none; /* Спочатку приховано */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none; /* Приховано за замовчуванням */
     opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.5s ease, visibility 0.5s ease;
+    transition: opacity 0.5s ease;
+    z-index: 1000;
 }
 
-/* Стан, коли вікно активне */
+/* Коли додано клас .show */
 #customModal.show {
-    display: block; /* Стає видимим для блокової моделі */
+    display: flex;
+    justify-content: center;
+    align-items: center;
     opacity: 1;
-    visibility: visible;
+}
+
+/* Вміст модального вікна */
+.w3-modal-content {
+    background-color: white;
+    width: 300px;
+    padding: 20px;
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Кнопка закриття */
+#closeModal {
+    cursor: pointer;
+    float: right;
+    font-size: 20px;
 }
