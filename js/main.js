@@ -33,6 +33,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-//window.addEventListener("load", (event) => {
-  //alert("page is fully loaded");
-//});
+document.addEventListener('DOMContentLoaded', () => {
+  // Весь ваш код тут
+  const modal = new ModalService('customModal');
+  console.log("DOM повністю завантажено!");
+});
+
