@@ -1,56 +1,70 @@
 class ModalService {
-  // Приватні поля (інцип інкапсуляції)
   #modal;
-  #title;
-  #message;
-  #closeBtn;
-  #okBtn;
+  #button;
+  #closeButtons;
+  #titleEl;
+  #messageEl;
+  #onOpen;  // Змінна для колбека відкриття
+  #onClose; // Змінна для колбека закриття
 
-  constructor(modalElement) {
-    this.#modal = modalElement;
-    
-    // Використовуємо optional chaining та надійні селектори
-    this.#title = this.#modal.querySelector('.modalTitle');
-    this.#message = this.#modal.querySelector('.modalMessage');
-    this.#closeBtn = this.#modal.querySelector('.closeModal');
-    this.#okBtn = this.#modal.querySelector('.modalBtn');
+  constructor({ 
+    modalSelector, 
+    buttonSelector, 
+    titleSelector = '.modal-title', 
+    messageSelector = '.modal-message', 
+    closeBtnSelector = '.close-btn',
+    onOpen = null,
+    onClose = null
+  }) {
+    this.#modal = document.querySelector(modalSelector);
+    this.#button = document.querySelector(buttonSelector);
+    this.#onOpen = onOpen;
+    this.#onClose = onClose;
+
+    if (!this.#modal) throw new Error(`Modal element not found: ${modalSelector}`);
+
+    this.#titleEl = this.#modal.querySelector(titleSelector);
+    this.#messageEl = this.#modal.querySelector(messageSelector);
+    this.#closeButtons = this.#modal.querySelectorAll(closeBtnSelector);
 
     this.#initEvents();
   }
 
   #initEvents() {
-    // Використовуємо addEventListener замість onclick для кращої гнучкості
-    this.#closeBtn?.addEventListener('click', () => this.close());
-    this.#okBtn?.addEventListener('click', () => this.close());
-
+    this.#button?.addEventListener('click', () => this.show());
+    this.#closeButtons.forEach(btn => btn.addEventListener('click', () => this.close()));
     this.#modal.addEventListener('click', (e) => {
       if (e.target === this.#modal) this.close();
     });
   }
 
-  show(title, message) {
-    if (this.#title) this.#title.textContent = title;
-    if (this.#message) this.#message.textContent = message;
+  show(title = '', message = '') {
+    if (this.#titleEl) this.#titleEl.textContent = title;
+    if (this.#messageEl) this.#messageEl.textContent = message;
     
     this.#modal.classList.add('show');
+    
+    // Викликаємо колбек, якщо він існує
+    if (typeof this.#onOpen === 'function') this.#onOpen();
   }
 
   close() {
     this.#modal.classList.remove('show');
+    
+    // Викликаємо колбек, якщо він існує
+    if (typeof this.#onClose === 'function') this.#onClose();
   }
 }
 
-// Використання сучасного підходу до ініціалізації
+// Приклад використання з колбеками:
 document.addEventListener('DOMContentLoaded', () => {
-  const modalEl = document.querySelector('.customModal');
-  const triggerBtn = document.querySelector('.triggerModal');
-
-  if (!modalEl) return;
-
-  const modal = new ModalService(modalEl);
-
-  triggerBtn?.addEventListener('click', () => {
-    modal.show('Вітаємо!', 'Код оновлено до сучасних стандартів ES6+');
+  const modal = new ModalService({
+    modalSelector: '.customModal',
+    buttonSelector: '.openModalBtn',
+    onOpen: () => console.log('Модальне вікно відкрите!'),
+    onClose: () => {
+      console.log('Модальне вікно закрите. Очищення даних...');
+      // Тут можна додати логіку очищення форми
+    }
   });
 });
-
