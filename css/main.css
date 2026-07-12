@@ -1,5 +1,5 @@
 /* Базовий вигляд модального вікна (фон) */
-#customModal {
+.customModal {
     position: fixed;
     top: 0;
     left: 0;
@@ -13,7 +13,7 @@
 }
 
 /* Коли додано клас .show */
-#customModal.show {
+.customModal.show {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -31,7 +31,7 @@
 }
 
 /* Кнопка закриття */
-#closeModal {
+.closeModal {
     cursor: pointer;
     float: right;
     font-size: 20px;
