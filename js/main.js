@@ -1,10 +1,11 @@
 class ModalService {
-  constructor(modalId) {
-    this.modal = document.getElementById(modalId);
-    this.title = document.getElementById('modalTitle');
-    this.message = document.getElementById('modalMessage');
-    this.closeBtn = document.getElementById('closeModal');
-    this.okBtn = document.getElementById('modalBtn');
+  constructor(modalElement) {
+    this.modal = modalElement;
+    // Шукаємо елементи всередині поточного модального вікна
+    this.title = this.modal.querySelector('.modalTitle');
+    this.message = this.modal.querySelector('.modalMessage');
+    this.closeBtn = this.modal.querySelector('.closeModal');
+    this.okBtn = this.modal.querySelector('.modalBtn');
 
     this._initEvents();
   }
@@ -13,7 +14,6 @@ class ModalService {
     if (this.closeBtn) this.closeBtn.onclick = () => this.close();
     if (this.okBtn) this.okBtn.onclick = () => this.close();
     
-    // Закриття при кліку на фон (зовні вікна)
     this.modal.addEventListener('click', (e) => {
         if (e.target === this.modal) this.close();
     });
@@ -31,12 +31,18 @@ class ModalService {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const modal = new ModalService('customModal');
-  const triggerBtn = document.getElementById('triggerModal');
+  // Знаходимо всі модалки на сторінці
+  const modalElements = document.querySelectorAll('.customModal');
+  const triggerBtn = document.querySelector('.triggerModal');
 
-  if (triggerBtn) {
-    triggerBtn.addEventListener('click', () => {
-      modal.show('Вітаємо!', 'Ваш сайт успішно працює без фреймворків!');
-    });
+  // Ініціалізуємо першу знайдену модалку
+  if (modalElements.length > 0) {
+    const modal = new ModalService(modalElements[0]);
+    
+    if (triggerBtn) {
+      triggerBtn.addEventListener('click', () => {
+        modal.show('Вітаємо!', 'Тепер ми використовуємо тільки класи!');
+      });
+    }
   }
 });
