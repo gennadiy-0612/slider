@@ -1,23 +1,38 @@
 <!DOCTYPE html>
-<html>
-  <head>
-  <title>My Car Site</title>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Мій Проект на GitHub</title>
   <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
+  <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
 
-<div class="w3-container w3-teal">
-  <h1>My Car</h1>
-</div>
+  <header class="w3-container w3-teal">
+    <h1>Автомобілі світу</h1>
+  </header>
 
-<div class="w3-container">
-  <p>A car is a wheeled, self-powered motor vehicle used for transportation.</p>
-</div>
+  <main class="w3-container w3-padding-32">
+    <p>Натисніть кнопку, щоб побачити сучасне модальне вікно:</p>
+    <button id="triggerModal" class="w3-button w3-blue">Показати повідомлення</button>
+  </main>
 
-<div class="w3-container w3-teal">
-  <p>My footer information</p>
-</div>
-<script src="./js/main.js"></script>
+  <dialog id="customModal" class="w3-modal">
+    <div class="w3-modal-content w3-card-4">
+      <header class="w3-container w3-teal">
+        <span id="closeModal" class="w3-button w3-display-topright">&times;</span>
+        <h2 id="modalTitle">Заголовок</h2>
+      </header>
+      <div class="w3-container">
+        <p id="modalMessage"></p>
+      </div>
+      <footer class="w3-container w3-teal">
+        <button id="modalBtn" class="w3-button w3-margin">ОК</button>
+      </footer>
+    </div>
+  </dialog>
+
+  <script src="js/main.js"></script>
 </body>
 </html>
