@@ -4,8 +4,8 @@ class ModalService {
   #closeButtons;
   #titleEl;
   #messageEl;
-  #onOpen;  // Змінна для колбека відкриття
-  #onClose; // Змінна для колбека закриття
+  #onOpen;
+  #onClose;
 
   constructor({ 
     modalSelector, 
@@ -31,8 +31,12 @@ class ModalService {
   }
 
   #initEvents() {
-    this.#button?.addEventListener('click', () => this.show());
-    this.#closeButtons.forEach(btn => btn.addEventListener('click', () => this.close()));
+    this.#button?.addEventListener('click', () => this.show('Вітаємо!', 'Це динамічне повідомлення'));
+    
+    this.#closeButtons.forEach(btn => {
+      btn.addEventListener('click', () => this.close());
+    });
+
     this.#modal.addEventListener('click', (e) => {
       if (e.target === this.#modal) this.close();
     });
@@ -41,29 +45,27 @@ class ModalService {
   show(title = '', message = '') {
     if (this.#titleEl) this.#titleEl.textContent = title;
     if (this.#messageEl) this.#messageEl.textContent = message;
-    
+
     this.#modal.classList.add('show');
-    
-    // Викликаємо колбек, якщо він існує
+
     if (typeof this.#onOpen === 'function') this.#onOpen();
   }
 
   close() {
     this.#modal.classList.remove('show');
-    
-    // Викликаємо колбек, якщо він існує
+
     if (typeof this.#onClose === 'function') this.#onClose();
   }
 }
 
-// Приклад використання з колбеками:
 document.addEventListener('DOMContentLoaded', () => {
   const modal = new ModalService({
     modalSelector: '.customModal',
-    buttonSelector: '.openModalBtn',
-    onOpen: () => alert('Модальне вікно відкрите!'),
-    onClose: () => {
-    alert('Модальне вікно закрите. Очищення даних...');
-    }
+    buttonSelector: '.triggerModal',
+    titleSelector: '.modalTitle',
+    messageSelector: '.modalMessage',
+    closeBtnSelector: '.closeModal, .modalBtn',
+    onOpen: () => console.log('Модальне вікно відкрите!'),
+    onClose: () => console.log('Модальне вікно закрите.')
   });
 });
