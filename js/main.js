@@ -35,4 +35,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 //window.addEventListener("load", (event) => {
   //alert("page is fully loaded");
-});
+//});
