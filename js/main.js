@@ -29,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const modal = new ModalService('customModal');
   
   document.getElementById('triggerModal').addEventListener('click', () => {
-    modal.show('Вітаємо!', 'Ваш сайт успішно працює на GitHub Pages!');
   });
 });
 
