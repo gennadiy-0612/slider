@@ -7,9 +7,12 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<div class="w3-container w3-padding-32">
+
+    <div class="w3-container w3-padding-32">
         <p>Натисніть кнопку:</p>
-        <p class="triggerModal" style="cursor:pointer; background:blue; color:white; padding:10px;">Показати повідомлення</p>
+        <p class="triggerModal" style="cursor:pointer; background:blue; color:white; padding:10px; display:inline-block;">
+            Показати повідомлення
+        </p>
     </div>
 
     <div class="customModal">
@@ -19,14 +22,13 @@
                 <h2 class="modalTitle">Заголовок</h2>
             </header>
             <div>
-                <p class="modalMessage"></p>
+                <p class="modalMessage">Текст повідомлення</p>
             </div>
             <footer>
-                <p class="modalBtn">ОК</p>
+                <p class="modalBtn" style="cursor:pointer; background:#eee; padding:5px; text-align:center;">ОК</p>
             </footer>
         </div>
     </div>
-
 
     <script src="js/main.js" defer></script>
 </body>
