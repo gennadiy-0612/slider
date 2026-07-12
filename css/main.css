@@ -1,10 +1,14 @@
-dialog {
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 1s, visibility 1s;
+/* Базовий стан модального вікна */
+#customModal {
+    display: none; /* Спочатку приховано */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
 }
 
-dialog[open] {
-  opacity: 1;
-  visibility: visible;
+/* Стан, коли вікно активне */
+#customModal.show {
+    display: block; /* Стає видимим для блокової моделі */
+    opacity: 1;
+    visibility: visible;
 }
