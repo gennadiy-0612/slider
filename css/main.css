@@ -2,11 +2,14 @@
 /* Робимо модальне вікно видимим, коли воно відкрите */
 dialog[open] {
   display: block;
+opacity:1;
 }
 
 /* Прибираємо стандартну рамку браузера */
 dialog {
+  opacity: 0;
   border: none;
   padding: 0;
   background: transparent;
+  transition: opacity.3ms;
 }
