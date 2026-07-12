@@ -1,44 +1,38 @@
-class ModalService {
-  constructor(modalId) {
-    this.modal = document.getElementById(modalId);
-    // Додаємо перевірку, чи знайшовся елемент
-    if (!this.modal) {
-      console.error(`Модальне вікно з ID "${modalId}" не знайдено!`);
-      return;
-    }
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
 
-    this.title = document.getElementById('modalTitle');
-    this.message = document.getElementById('modalMessage');
-    this.closeBtn = document.getElementById('closeModal');
-    this.okBtn = document.getElementById('modalBtn');
-    
-    this._initEvents();
-  }
+    <header class="w3-container w3-teal">
+        <h1>Анімація</h1>
+    </header>
 
-  _initEvents() {
-    if (this.closeBtn) this.closeBtn.onclick = () => this.close();
-    if (this.okBtn) this.okBtn.onclick = () => this.close();
-  }
+    <main class="w3-container w3-padding-32">
+        <p>Натисніть кнопку, щоб побачити сучасне модальне вікно:</p>
+        <button id="triggerModal" class="w3-button w3-blue">Показати повідомлення</button>
+    </main>
 
-  show(title, message) {
-    this.title.textContent = title;
-    this.message.textContent = message;
-    this.modal.showModal();
-  }
+    <div id="customModal" class="w3-modal">
+        <div class="w3-modal-content w3-card-4">
+            <header class="w3-container w3-teal">
+                <span id="closeModal" class="w3-button w3-display-topright">&times;</span>
+                <h2 id="modalTitle">Заголовок</h2>
+            </header>
+            <div class="w3-container">
+                <p id="modalMessage"></p>
+            </div>
+            <footer class="w3-container w3-teal">
+                <button id="modalBtn" class="w3-button w3-margin">ОК</button>
+            </footer>
+        </div>
+    </div>
 
-  close() {
-    this.modal.close();
-  }
-}
-
-// Єдиний блок ініціалізації
-document.addEventListener('DOMContentLoaded', () => {
-  const modal = new ModalService('customModal');
-  const triggerBtn = document.getElementById('triggerModal');
-
-  if (triggerBtn) {
-    triggerBtn.addEventListener('click', () => {
-      modal.show('Вітаємо!', 'Ваш сайт успішно працює на GitHub Pages!');
-    });
-  }
-});
+    <script src="js/main.js" defer></script>
+</body>
+</html>
