@@ -1,5 +1,5 @@
 .customModal {
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
@@ -7,8 +7,7 @@
     background-color: rgba(0, 0, 0, 0.5);
     display: none;
     opacity: 0;
-    transition: opacity 0.5s ease;
-    z-index: 1000;
+    transition: opacity 1s ease;
 }
 
 .customModal.show {
