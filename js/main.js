@@ -1,5 +1,3 @@
-const contEl ={}
-
 class ModalService {
   #modal;
   #button;
@@ -17,14 +15,15 @@ class ModalService {
     closeBtnSelector = '.close-btn',
     onOpen = null,
     onClose = null
-  }) 
-  contEl.show = {
+  }) { // Сюди повернуто правильне відкриття конструктора
     this.#modal = document.querySelector(modalSelector);
     this.#button = document.querySelector(buttonSelector);
     this.#onOpen = onOpen;
     this.#onClose = onClose;
 
-    if (!this.#modal) throw new Error(`Modal element not found: ${modalSelector}`);
+    if (!this.#modal) {
+      throw new Error(`Modal element not found: ${modalSelector}`);
+    }
 
     this.#titleEl = this.#modal.querySelector(titleSelector);
     this.#messageEl = this.#modal.querySelector(messageSelector);
@@ -34,12 +33,17 @@ class ModalService {
   }
 
   #initEvents() {
-    this.#button?.addEventListener('click', () => this.show('Вітаємо!', 'Це динамічне повідомлення'));
+    // Відкриття при кліку на головну кнопку
+    this.#button?.addEventListener('click', () => {
+      this.show('Вітаємо!', 'Це динамічне повідомлення');
+    });
     
+    // Закриття при кліку на кнопки закриття
     this.#closeButtons.forEach(btn => {
       btn.addEventListener('click', () => this.close());
     });
 
+    // Закриття при кліку на "бекдроп" (простір навколо модалки)
     this.#modal.addEventListener('click', (e) => {
       if (e.target === this.#modal) this.close();
     });
@@ -60,16 +64,20 @@ class ModalService {
     if (typeof this.#onClose === 'function') this.#onClose();
   }
 }
-let a = {
-    modalSelector: '.customModal',
-    buttonSelector: '.triggerModal',
-    titleSelector: '.modalTitle',
-    messageSelector: '.modalMessage',
-    closeBtnSelector: '.closeModal, .modalBtn',
-    onOpen: () => console.log('Модальне вікно відкрите!'),
-    onClose: () => console.log('Модальне вікно закрите.')
-  }
 
-document.addEventListener('DOMContentLoaded', (a) => {
-  const modal = new ModalService();
+// Об'єкт налаштувань (перейменовано для кращої читабельності)
+const modalConfig = {
+  modalSelector: '.customModal',
+  buttonSelector: '.triggerModal',
+  titleSelector: '.modalTitle',
+  messageSelector: '.modalMessage',
+  closeBtnSelector: '.closeModal, .modalBtn',
+  onOpen: () => console.log('Модальне вікно відкрите!'),
+  onClose: () => console.log('Модальне вікно закрите.')
+};
+
+// Ініціалізація після завантаження DOM
+document.addEventListener('DOMContentLoaded', () => {
+  // Передаємо наш об'єкт конфігурації в конструктор
+  const modal = new ModalService(modalConfig);
 });
