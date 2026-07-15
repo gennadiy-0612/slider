@@ -15,7 +15,8 @@ class ModalService {
     closeBtnSelector = '.close-btn',
     onOpen = null,
     onClose = null
-  }) {
+  }) 
+  {
     this.#modal = document.querySelector(modalSelector);
     this.#button = document.querySelector(buttonSelector);
     this.#onOpen = onOpen;
@@ -57,9 +58,7 @@ class ModalService {
     if (typeof this.#onClose === 'function') this.#onClose();
   }
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-  const modal = new ModalService({
+let a = {
     modalSelector: '.customModal',
     buttonSelector: '.triggerModal',
     titleSelector: '.modalTitle',
@@ -67,5 +66,8 @@ document.addEventListener('DOMContentLoaded', () => {
     closeBtnSelector: '.closeModal, .modalBtn',
     onOpen: () => console.log('Модальне вікно відкрите!'),
     onClose: () => console.log('Модальне вікно закрите.')
-  });
+  }
+
+document.addEventListener('DOMContentLoaded', (a) => {
+  const modal = new ModalService();
 });
