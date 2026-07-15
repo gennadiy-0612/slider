@@ -1,3 +1,5 @@
+const contEl ={}
+
 class ModalService {
   #modal;
   #button;
@@ -16,7 +18,7 @@ class ModalService {
     onOpen = null,
     onClose = null
   }) 
-  {
+  contEl.show = {
     this.#modal = document.querySelector(modalSelector);
     this.#button = document.querySelector(buttonSelector);
     this.#onOpen = onOpen;
