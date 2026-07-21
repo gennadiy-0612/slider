@@ -1,18 +1,14 @@
 class ModalService {
   #modal;
 
-  constructor({ 
-    modalSelector = #modal
-  })
-   { 
+  // Приймаємо звичайний аргумент-рядок
+  constructor(modalSelector = '#modal') { 
     this.#modal = document.querySelector(modalSelector);
-    console.log(this.#modal);
+    console.log(this);
   }
 }
 
-
-// Ініціалізація після завантаження DOM
 document.addEventListener('DOMContentLoaded', () => {
-  // Передаємо наш об'єкт конфігурації в конструктор
+  // Тепер можна передавати просто рядок
   const modal = new ModalService('.hide');
 });
