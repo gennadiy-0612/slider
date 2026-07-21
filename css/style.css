@@ -1,0 +1,12 @@
+
+.brick {
+  background-color: #c5c5c5;
+  width: 300px;
+  margin: auto;
+}
+.control {
+  text-align: center;
+}
+.show {
+  text-align: center;
+}
