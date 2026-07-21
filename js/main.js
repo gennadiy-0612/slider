@@ -1,3 +1,4 @@
+const open = {}
 class ModalService {
   #modal;
   #button;
@@ -15,7 +16,8 @@ class ModalService {
     closeBtnSelector = '.close-btn',
     onOpen = null,
     onClose = null
-  }) { // Сюди повернуто правильне відкриття конструктора
+  })
+   { // Сюди повернуто правильне відкриття конструктора
     this.#modal = document.querySelector(modalSelector);
     this.#button = document.querySelector(buttonSelector);
     this.#onOpen = onOpen;

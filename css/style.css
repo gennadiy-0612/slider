@@ -7,6 +7,10 @@
 .control {
   text-align: center;
 }
-.show {
+
+.info {
   text-align: center;
+}
+.hide{
+  opacity: 0;
 }
