@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Single Polygon Morphing Slider</title>
+  <title>CSS Clip-Path Morphing Slider</title>
 
   <style>
     * {
@@ -22,7 +22,7 @@
       min-height: 100vh;
     }
 
-    /* Головний контейнер */
+    /* Головний контейнер слайдера */
     .slider-container {
       position: relative;
       width: 800px;
@@ -33,28 +33,26 @@
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
     }
 
-    /* --- ЄДИНИЙ SVG ПОЛІГОН НА ФОНІ --- */
-    .bg-svg {
+    /* --- ЄДИНИЙ ФОНОВИЙ ПОЛІГОН (CSS CLIP-PATH) --- */
+    .bg-polygon {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       z-index: 1;
+
+      /* КЛЮЧОВЕ: Плавна CSS-анімація зміни форми та кольору */
+      transition: clip-path 0.9s cubic-bezier(0.65, 0, 0.35, 1),
+                  background-color 0.9s ease-in-out;
     }
 
-    /* Плавний морфінг форми (points) та кольору (fill) */
-    .morph-polygon {
-      transition: points 2s cubic-bezier(0.77, 0, 0.175, 1),
-                  fill 2s ease-in-out;
-    }
-
-    /* --- КОНТЕНТ СЛАЙДІВ (ТЕКСТ/НОМЕРИ) --- */
+    /* --- КОНТЕНТ СЛАЙДІВ --- */
     .slides-wrapper {
       position: relative;
       width: 100%;
       height: 100%;
-      z-index: 2; /* Поверх SVG */
+      z-index: 2; /* Текст поверх полігона */
       pointer-events: none;
     }
 
@@ -151,12 +149,10 @@
 <body>
 
   <div class="slider-container" id="singlePolygonSlider">
-    <!-- ЄДИНИЙ ПОЛІГОН НА ФОНІ (SVG) -->
-    <svg class="bg-svg" viewBox="0 0 800 450" preserveAspectRatio="none">
-      <polygon id="bgPolygon" class="morph-polygon" points="" fill="" />
-    </svg>
+    <!-- Єдиний фоновий елемент, форма якого змінюється через CSS clip-path -->
+    <div id="bgPolygon" class="bg-polygon"></div>
 
-    <!-- Контент слайдів (номери/текст) -->
+    <!-- Текст/номери слайдів -->
     <div class="slides-wrapper">
       <div class="slide"><span class="slide-content">01</span></div>
       <div class="slide"><span class="slide-content">02</span></div>
@@ -175,7 +171,7 @@
   </div>
 
   <script>
-    class SinglePolygonSliderService {
+    class ClipPathSliderService {
       #containerEl;
       #polygonEl;
       #slides;
@@ -187,23 +183,23 @@
       #options;
       #controller = new AbortController();
 
-      // Масив із 8 унікальних 4-кутних форм (координати X,Y в SVG 800x450) та кольорів
+      // Масив із 8 полігонів (усі мають РІВНО 4 точки у %) та унікальні кольори
       #slideThemes = [
-        { points: "80,0 800,0 720,450 0,450", color: "#f43f5e" },   // 1: Паралелограм (Червоний)
-        { points: "160,0 640,0 800,450 0,450", color: "#8b5cf6" },  // 2: Трапеція (Фіолетовий)
-        { points: "400,0 800,225 400,450 0,225", color: "#06b6d4" }, // 3: Ромб (Блакитний)
-        { points: "0,0 800,0 640,450 160,450", color: "#10b981" },  // 4: Перевернута трапеція (Зелений)
-        { points: "0,90 800,0 680,450 80,360", color: "#f59e0b" },  // 5: Скошений чотирикутник A (Жовтий)
-        { points: "160,0 800,90 640,450 0,360", color: "#ec4899" }, // 6: Скошений чотирикутник B (Рожевий)
-        { points: "120,20 680,20 680,430 120,430", color: "#3b82f6" },// 7: Прямокутник з відступами (Синій)
-        { points: "40,70 760,70 760,380 40,380", color: "#84cc16" }  // 8: Широкий блок (Салатовий)
+        { clipPath: "polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%)", color: "#f43f5e" },   // 1: Паралелограм
+        { clipPath: "polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%)", color: "#8b5cf6" },  // 2: Трапеція
+        { clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)", color: "#06b6d4" },  // 3: Ромб
+        { clipPath: "polygon(0% 0%, 100% 0%, 80% 100%, 20% 100%)", color: "#10b981" },  // 4: Перевернута трапеція
+        { clipPath: "polygon(0% 20%, 100% 0%, 85% 100%, 10% 80%)", color: "#f59e0b" },  // 5: Скошений чотирикутник A
+        { clipPath: "polygon(20% 0%, 100% 20%, 80% 100%, 0% 80%)", color: "#ec4899" },  // 6: Скошений чотирикутник B
+        { clipPath: "polygon(15% 5%, 85% 5%, 85% 95%, 15% 95%)",  color: "#3b82f6" },  // 7: Прямокутник
+        { clipPath: "polygon(5% 15%, 95% 15%, 95% 85%, 5% 85%)",  color: "#84cc16" }   // 8: Широкий блок
       ];
 
       constructor(target, options = {}) {
         this.#containerEl = typeof target === 'string' ? document.querySelector(target) : target;
 
         if (!this.#containerEl) {
-          throw new Error(`[SinglePolygonSliderService] Контейнер не знайдено: ${target}`);
+          throw new Error(`[ClipPathSliderService] Контейнер не знайдено: ${target}`);
         }
 
         this.#options = {
@@ -261,13 +257,13 @@
         const activeClass = this.#options.activeClass;
         const currentTheme = this.#slideThemes[this.#currentIndex];
 
-        // 1. АНІМУЄМО ПОЛІГОН: змінюємо точки й колір одного елемента
+        // Змінюємо CSS-властивості через стиль елемента (запускає плавну CSS transition)
         if (this.#polygonEl && currentTheme) {
-          this.#polygonEl.setAttribute('points', currentTheme.points);
-          this.#polygonEl.setAttribute('fill', currentTheme.color);
+          this.#polygonEl.style.clipPath = currentTheme.clipPath;
+          this.#polygonEl.style.backgroundColor = currentTheme.color;
         }
 
-        // 2. Перемикаємо текст/номер слайду
+        // Перемикаємо текст/номер слайду
         this.#slides.forEach((slide, idx) => {
           if (idx === this.#currentIndex) {
             slide.classList.add(activeClass);
@@ -276,7 +272,7 @@
           }
         });
 
-        // 3. Оновлюємо крапки
+        // Оновлюємо крапки
         this.#dots.forEach((dot, idx) => {
           if (idx === this.#currentIndex) {
             dot.classList.add(activeClass);
@@ -328,9 +324,9 @@
       }
     }
 
-    // Запуск після завантаження сторінки
+    // Запуск слайдера
     document.addEventListener('DOMContentLoaded', () => {
-      const slider = new SinglePolygonSliderService('#singlePolygonSlider');
+      const slider = new ClipPathSliderService('#singlePolygonSlider');
     });
   </script>
 </body>
