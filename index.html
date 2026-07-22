@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Morphing Polygon Slider</title>
+  <title>Single Polygon Morphing Slider</title>
 
   <style>
     * {
@@ -22,7 +22,7 @@
       min-height: 100vh;
     }
 
-    /* Контейнер слайдера */
+    /* Головний контейнер */
     .slider-container {
       position: relative;
       width: 800px;
@@ -33,13 +33,31 @@
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
     }
 
+    /* --- ЄДИНИЙ SVG ПОЛІГОН НА ФОНІ --- */
+    .bg-svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    /* Плавний морфінг форми (points) та кольору (fill) */
+    .morph-polygon {
+      transition: points 2s cubic-bezier(0.77, 0, 0.175, 1),
+                  fill 2s ease-in-out;
+    }
+
+    /* --- КОНТЕНТ СЛАЙДІВ (ТЕКСТ/НОМЕРИ) --- */
     .slides-wrapper {
       position: relative;
       width: 100%;
       height: 100%;
+      z-index: 2; /* Поверх SVG */
+      pointer-events: none;
     }
 
-    /* Базовий слайд */
     .slide {
       position: absolute;
       top: 0;
@@ -50,90 +68,21 @@
       justify-content: center;
       align-items: center;
       opacity: 0;
-      pointer-events: none;
-      z-index: 1;
-
-      /* КЛЮЧОВЕ: Плавний морфінг (зміна форми та прозорості) */
-      transition: clip-path 0.8s cubic-bezier(0.77, 0, 0.175, 1),
-                  opacity 0.6s ease-in-out,
-                  transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
-      
-      /* Початковий стан трансформації для ефекту морфінгу */
-      transform: scale(0.92);
+      transform: scale(0.9);
+      transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
     }
 
-    /* Активний слайд, який з'являється */
     .slide.is-active {
       opacity: 1;
-      pointer-events: auto;
-      z-index: 3;
       transform: scale(1);
     }
 
-    /* Слайд, який зараз виходить (для плавного переходу форми) */
-    .slide.is-exiting {
-      opacity: 0;
-      z-index: 2;
-      transform: scale(1.05);
-    }
-
-    /* Вміст слайда */
     .slide-content {
-      font-size: 6rem;
+      font-size: 7rem;
       font-weight: 900;
-      color: rgba(255, 255, 255, 0.95);
-      text-shadow: 0 10px 20px rgba(0,0,0,0.4);
+      color: #ffffff;
+      text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
       user-select: none;
-    }
-
-    /* --- ПОЛІГОНИ ТА КОЛЬОРИ (Всі мають по 4 точки для синхронного морфінгу) --- */
-    
-    /* Slide 1: Косий паралелограм */
-    .slide:nth-child(1) {
-      background: linear-gradient(135deg, #f43f5e, #e11d48);
-      clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%);
-    }
-
-    /* Slide 2: Трапеція */
-    .slide:nth-child(2) {
-      background: linear-gradient(135deg, #8b5cf6, #6d28d9);
-      clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
-    }
-
-    /* Slide 3: Ромб / Алмаз */
-    .slide:nth-child(3) {
-      background: linear-gradient(135deg, #06b6d4, #0891b2);
-      clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-    }
-
-    /* Slide 4: Перевернута трапеція */
-    .slide:nth-child(4) {
-      background: linear-gradient(135deg, #10b981, #059669);
-      clip-path: polygon(0% 0%, 100% 0%, 80% 100%, 20% 100%);
-    }
-
-    /* Slide 5: Скошений чотирикутник A */
-    .slide:nth-child(5) {
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      clip-path: polygon(0% 20%, 100% 0%, 80% 100%, 10% 80%);
-    }
-
-    /* Slide 6: Скошений чотирикутник B */
-    .slide:nth-child(6) {
-      background: linear-gradient(135deg, #ec4899, #be185d);
-      clip-path: polygon(20% 0%, 100% 20%, 80% 100%, 0% 80%);
-    }
-
-    /* Slide 7: Вертикальний прямокутник у центрі */
-    .slide:nth-child(7) {
-      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-      clip-path: polygon(15% 5%, 85% 5%, 85% 95%, 15% 95%);
-    }
-
-    /* Slide 8: Горизонтальний прямокутник */
-    .slide:nth-child(8) {
-      background: linear-gradient(135deg, #84cc16, #65a30d);
-      clip-path: polygon(5% 15%, 95% 15%, 95% 85%, 5% 85%);
     }
 
     /* --- КНОПКИ УПРАВЛІННЯ --- */
@@ -141,7 +90,7 @@
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      background: rgba(15, 23, 42, 0.6);
+      background: rgba(15, 23, 42, 0.5);
       border: 1px solid rgba(255, 255, 255, 0.2);
       color: white;
       width: 52px;
@@ -201,7 +150,13 @@
 </head>
 <body>
 
-  <div class="slider-container" id="polygonSlider">
+  <div class="slider-container" id="singlePolygonSlider">
+    <!-- ЄДИНИЙ ПОЛІГОН НА ФОНІ (SVG) -->
+    <svg class="bg-svg" viewBox="0 0 800 450" preserveAspectRatio="none">
+      <polygon id="bgPolygon" class="morph-polygon" points="" fill="" />
+    </svg>
+
+    <!-- Контент слайдів (номери/текст) -->
     <div class="slides-wrapper">
       <div class="slide"><span class="slide-content">01</span></div>
       <div class="slide"><span class="slide-content">02</span></div>
@@ -220,34 +175,45 @@
   </div>
 
   <script>
-    class PolygonSliderService {
+    class SinglePolygonSliderService {
       #containerEl;
+      #polygonEl;
       #slides;
       #prevBtn;
       #nextBtn;
       #dotsContainer;
       #dots = [];
       #currentIndex = 0;
-      #isAnimating = false;
       #options;
       #controller = new AbortController();
+
+      // Масив із 8 унікальних 4-кутних форм (координати X,Y в SVG 800x450) та кольорів
+      #slideThemes = [
+        { points: "80,0 800,0 720,450 0,450", color: "#f43f5e" },   // 1: Паралелограм (Червоний)
+        { points: "160,0 640,0 800,450 0,450", color: "#8b5cf6" },  // 2: Трапеція (Фіолетовий)
+        { points: "400,0 800,225 400,450 0,225", color: "#06b6d4" }, // 3: Ромб (Блакитний)
+        { points: "0,0 800,0 640,450 160,450", color: "#10b981" },  // 4: Перевернута трапеція (Зелений)
+        { points: "0,90 800,0 680,450 80,360", color: "#f59e0b" },  // 5: Скошений чотирикутник A (Жовтий)
+        { points: "160,0 800,90 640,450 0,360", color: "#ec4899" }, // 6: Скошений чотирикутник B (Рожевий)
+        { points: "120,20 680,20 680,430 120,430", color: "#3b82f6" },// 7: Прямокутник з відступами (Синій)
+        { points: "40,70 760,70 760,380 40,380", color: "#84cc16" }  // 8: Широкий блок (Салатовий)
+      ];
 
       constructor(target, options = {}) {
         this.#containerEl = typeof target === 'string' ? document.querySelector(target) : target;
 
         if (!this.#containerEl) {
-          throw new Error(`[PolygonSliderService] Контейнер не знайдено: ${target}`);
+          throw new Error(`[SinglePolygonSliderService] Контейнер не знайдено: ${target}`);
         }
 
         this.#options = {
           activeClass: 'is-active',
-          exitingClass: 'is-exiting',
-          duration: 800, // Час анімації в мілісекундах
           startIndex: 0,
           onChange: null,
           ...options
         };
 
+        this.#polygonEl = this.#containerEl.querySelector('#bgPolygon');
         this.#slides = Array.from(this.#containerEl.querySelectorAll('.slide'));
         this.#prevBtn = this.#containerEl.querySelector('.nav-btn.prev');
         this.#nextBtn = this.#containerEl.querySelector('.nav-btn.next');
@@ -259,18 +225,17 @@
       }
 
       goTo(index) {
-        // Запобігаємо занадто швидкому кліканню під час анімації
-        if (this.#isAnimating || index === this.#currentIndex) return this;
-
         let targetIndex = index;
+
         if (index < 0) {
           targetIndex = this.#slides.length - 1;
         } else if (index >= this.#slides.length) {
           targetIndex = 0;
         }
 
-        this.#animateTransition(this.#currentIndex, targetIndex);
         this.#currentIndex = targetIndex;
+        this.#updateDOM();
+        this.#dispatchEvents();
 
         return this;
       }
@@ -281,45 +246,44 @@
       destroy() {
         this.#controller.abort();
         this.#containerEl = null;
+        this.#polygonEl = null;
         this.#slides = [];
         this.#dots = [];
       }
 
       #init() {
         this.#renderDots();
-        
-        // Початкова установка першого слайда
-        this.#slides[this.#currentIndex].classList.add(this.#options.activeClass);
-        this.#dots[this.#currentIndex]?.classList.add(this.#options.activeClass);
-
+        this.#updateDOM();
         this.#initEvents();
       }
 
-      #animateTransition(oldIndex, newIndex) {
-        this.#isAnimating = true;
+      #updateDOM() {
+        const activeClass = this.#options.activeClass;
+        const currentTheme = this.#slideThemes[this.#currentIndex];
 
-        const prevSlide = this.#slides[oldIndex];
-        const nextSlide = this.#slides[newIndex];
-        const { activeClass, exitingClass, duration } = this.#options;
+        // 1. АНІМУЄМО ПОЛІГОН: змінюємо точки й колір одного елемента
+        if (this.#polygonEl && currentTheme) {
+          this.#polygonEl.setAttribute('points', currentTheme.points);
+          this.#polygonEl.setAttribute('fill', currentTheme.color);
+        }
 
-        // 1. Попередній слайд переходить у стан "виходу"
-        prevSlide.classList.remove(activeClass);
-        prevSlide.classList.add(exitingClass);
-
-        // 2. Новий слайд стає "активним" і розгортає свою форму
-        nextSlide.classList.add(activeClass);
+        // 2. Перемикаємо текст/номер слайду
+        this.#slides.forEach((slide, idx) => {
+          if (idx === this.#currentIndex) {
+            slide.classList.add(activeClass);
+          } else {
+            slide.classList.remove(activeClass);
+          }
+        });
 
         // 3. Оновлюємо крапки
-        this.#dots[oldIndex]?.classList.remove(activeClass);
-        this.#dots[newIndex]?.classList.add(activeClass);
-
-        // 4. Після закінчення CSS-анімації знімаємо тимчасові класи
-        setTimeout(() => {
-          prevSlide.classList.remove(exitingClass);
-          this.#isAnimating = false;
-        }, duration);
-
-        this.#dispatchEvents();
+        this.#dots.forEach((dot, idx) => {
+          if (idx === this.#currentIndex) {
+            dot.classList.add(activeClass);
+          } else {
+            dot.classList.remove(activeClass);
+          }
+        });
       }
 
       #renderDots() {
@@ -364,9 +328,9 @@
       }
     }
 
-    // Запуск після завантаження DOM
+    // Запуск після завантаження сторінки
     document.addEventListener('DOMContentLoaded', () => {
-      const slider = new PolygonSliderService('#polygonSlider');
+      const slider = new SinglePolygonSliderService('#singlePolygonSlider');
     });
   </script>
 </body>
