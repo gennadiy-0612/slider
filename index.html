@@ -42,17 +42,17 @@
       height: 100%;
       z-index: 1;
 
-      /* КЛЮЧОВЕ: Плавна CSS-анімація зміни форми та кольору */
+      /* Плавна зміна форми та кольору фону */
       transition: clip-path 0.9s cubic-bezier(0.65, 0, 0.35, 1),
                   background-color 0.9s ease-in-out;
     }
 
-    /* --- КОНТЕНТ СЛАЙДІВ --- */
+    /* --- КОНТЕНТ СЛАЙДІВ (ЗБІЛЬШЕННЯ З ПРАВА НАЛІВО + FADE-IN) --- */
     .slides-wrapper {
       position: relative;
       width: 100%;
       height: 100%;
-      z-index: 2; /* Текст поверх полігона */
+      z-index: 2;
       pointer-events: none;
     }
 
@@ -65,12 +65,21 @@
       display: flex;
       justify-content: center;
       align-items: center;
+
+      /* 1. Початковий стан: 0px і прозорий */
       opacity: 0;
-      transform: scale(0.9);
-      transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+      transform: scale(0);
+
+      /* 2. Фіксуємо якір справа, щоб ріс справа наліво */
+      transform-origin: right center;
+
+      /* 3. Плавна анімація (cubic-bezier додає приємний пружинистий ефект) */
+      transition: opacity 0.7s cubic-bezier(0.34, 1.56, 0.64, 1),
+                  transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     .slide.is-active {
+      /* Активний стан: 100% розмір і 100% видимість */
       opacity: 1;
       transform: scale(1);
     }
@@ -149,7 +158,7 @@
 <body>
 
   <div class="slider-container" id="singlePolygonSlider">
-    <!-- Єдиний фоновий елемент, форма якого змінюється через CSS clip-path -->
+    <!-- Єдиний фоновий полігон -->
     <div id="bgPolygon" class="bg-polygon"></div>
 
     <!-- Текст/номери слайдів -->
@@ -183,16 +192,15 @@
       #options;
       #controller = new AbortController();
 
-      // Масив із 8 полігонів (усі мають РІВНО 4 точки у %) та унікальні кольори
       #slideThemes = [
-        { clipPath: "polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%)", color: "#f43f5e" },   // 1: Паралелограм
-        { clipPath: "polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%)", color: "#8b5cf6" },  // 2: Трапеція
-        { clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)", color: "#06b6d4" },  // 3: Ромб
-        { clipPath: "polygon(0% 0%, 100% 0%, 80% 100%, 20% 100%)", color: "#10b981" },  // 4: Перевернута трапеція
-        { clipPath: "polygon(0% 20%, 100% 0%, 85% 100%, 10% 80%)", color: "#f59e0b" },  // 5: Скошений чотирикутник A
-        { clipPath: "polygon(20% 0%, 100% 20%, 80% 100%, 0% 80%)", color: "#ec4899" },  // 6: Скошений чотирикутник B
-        { clipPath: "polygon(15% 5%, 85% 5%, 85% 95%, 15% 95%)",  color: "#3b82f6" },  // 7: Прямокутник
-        { clipPath: "polygon(5% 15%, 95% 15%, 95% 85%, 5% 85%)",  color: "#84cc16" }   // 8: Широкий блок
+        { clipPath: "polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%)", color: "#f43f5e" },
+        { clipPath: "polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%)", color: "#8b5cf6" },
+        { clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)", color: "#06b6d4" },
+        { clipPath: "polygon(0% 0%, 100% 0%, 80% 100%, 20% 100%)", color: "#10b981" },
+        { clipPath: "polygon(0% 20%, 100% 0%, 85% 100%, 10% 80%)", color: "#f59e0b" },
+        { clipPath: "polygon(20% 0%, 100% 20%, 80% 100%, 0% 80%)", color: "#ec4899" },
+        { clipPath: "polygon(15% 5%, 85% 5%, 85% 95%, 15% 95%)",  color: "#3b82f6" },
+        { clipPath: "polygon(5% 15%, 95% 15%, 95% 85%, 5% 85%)",  color: "#84cc16" }
       ];
 
       constructor(target, options = {}) {
@@ -257,13 +265,11 @@
         const activeClass = this.#options.activeClass;
         const currentTheme = this.#slideThemes[this.#currentIndex];
 
-        // Змінюємо CSS-властивості через стиль елемента (запускає плавну CSS transition)
         if (this.#polygonEl && currentTheme) {
           this.#polygonEl.style.clipPath = currentTheme.clipPath;
           this.#polygonEl.style.backgroundColor = currentTheme.color;
         }
 
-        // Перемикаємо текст/номер слайду
         this.#slides.forEach((slide, idx) => {
           if (idx === this.#currentIndex) {
             slide.classList.add(activeClass);
@@ -272,7 +278,6 @@
           }
         });
 
-        // Оновлюємо крапки
         this.#dots.forEach((dot, idx) => {
           if (idx === this.#currentIndex) {
             dot.classList.add(activeClass);
@@ -324,7 +329,6 @@
       }
     }
 
-    // Запуск слайдера
     document.addEventListener('DOMContentLoaded', () => {
       const slider = new ClipPathSliderService('#singlePolygonSlider');
     });
