@@ -1,4 +1,11 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSS Clip-Path Morphing Slider</title>
 
+  <style>
     * {
       box-sizing: border-box;
       margin: 0;
@@ -15,7 +22,7 @@
       min-height: 100vh;
     }
 
-    /* Батьківський контейнер */
+    /* Головний контейнер слайдера */
     .slider-container {
       position: relative;
       width: 800px;
@@ -26,34 +33,18 @@
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
     }
 
-    /* --- ЄДИНИЙ ФОНОВИЙ ПОЛІГОН (ПРИТИСНУТИЙ ДО ПРАВОГО КРАЮ) --- */
-    #bgPolygon {
+    /* --- ЄДИНИЙ ФОНОВИЙ ПОЛІГОН (CSS CLIP-PATH) --- */
+    .bg-polygon {
       position: absolute;
       top: 0;
-      right: 0; /* Фіксуємо правий бік НА МІСЦІ */
+      left: 0;
+      width: 100%;
       height: 100%;
       z-index: 1;
 
-      /* Початковий стан: 0% ширини біля правого краю, повністю непрозорий (1) */
-      width: 0%;
-      opacity: 1;
-
-      /* Анімація розширення ширини вліво/вправо та зникнення прозорості */
-      transition: width 0.9s cubic-bezier(0.25, 1, 0.5, 1),
-                  opacity 0.9s cubic-bezier(0.5, 0, 0.75, 0),
-                  clip-path 0.9s ease-out,
-                  background-color 0.9s ease-out;
-    }
-
-    /* Стан розгортання: ширина 100%, прозорість 0 */
-    #bgPolygon.is-animating {
-      width: 100%;
-      opacity: 0;
-    }
-
-    /* Миттєве скидання анімації */
-    #bgPolygon.no-transition {
-      transition: none !important;
+      /* КЛЮЧОВЕ: Плавна CSS-анімація зміни форми та кольору */
+      transition: clip-path 0.9s cubic-bezier(0.65, 0, 0.35, 1),
+                  background-color 0.9s ease-in-out;
     }
 
     /* --- КОНТЕНТ СЛАЙДІВ --- */
@@ -61,7 +52,7 @@
       position: relative;
       width: 100%;
       height: 100%;
-      z-index: 2;
+      z-index: 2; /* Текст поверх полігона */
       pointer-events: none;
     }
 
@@ -92,7 +83,7 @@
       user-select: none;
     }
 
-    /* --- КНОПКИ ТА ПАГІНАЦІЯ --- */
+    /* --- КНОПКИ УПРАВЛІННЯ --- */
     .nav-btn {
       position: absolute;
       top: 50%;
@@ -122,6 +113,7 @@
     .nav-btn.prev { left: 24px; }
     .nav-btn.next { right: 24px; }
 
+    /* Пагінація (Крапки) */
     .pagination {
       position: absolute;
       bottom: 24px;
@@ -152,4 +144,190 @@
       transform: scale(1.4);
       border-radius: 8px;
     }
-  
+  </style>
+</head>
+<body>
+
+  <div class="slider-container" id="singlePolygonSlider">
+    <!-- Єдиний фоновий елемент, форма якого змінюється через CSS clip-path -->
+    <div id="bgPolygon" class="bg-polygon"></div>
+
+    <!-- Текст/номери слайдів -->
+    <div class="slides-wrapper">
+      <div class="slide"><span class="slide-content">01</span></div>
+      <div class="slide"><span class="slide-content">02</span></div>
+      <div class="slide"><span class="slide-content">03</span></div>
+      <div class="slide"><span class="slide-content">04</span></div>
+      <div class="slide"><span class="slide-content">05</span></div>
+      <div class="slide"><span class="slide-content">06</span></div>
+      <div class="slide"><span class="slide-content">07</span></div>
+      <div class="slide"><span class="slide-content">08</span></div>
+    </div>
+
+    <button class="nav-btn prev" aria-label="Назад">&#10094;</button>
+    <button class="nav-btn next" aria-label="Вперед">&#10095;</button>
+
+    <div class="pagination"></div>
+  </div>
+
+  <script>
+    class ClipPathSliderService {
+      #containerEl;
+      #polygonEl;
+      #slides;
+      #prevBtn;
+      #nextBtn;
+      #dotsContainer;
+      #dots = [];
+      #currentIndex = 0;
+      #options;
+      #controller = new AbortController();
+
+      // Масив із 8 полігонів (усі мають РІВНО 4 точки у %) та унікальні кольори
+      #slideThemes = [
+        { clipPath: "polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%)", color: "#f43f5e" },   // 1: Паралелограм
+        { clipPath: "polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%)", color: "#8b5cf6" },  // 2: Трапеція
+        { clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)", color: "#06b6d4" },  // 3: Ромб
+        { clipPath: "polygon(0% 0%, 100% 0%, 80% 100%, 20% 100%)", color: "#10b981" },  // 4: Перевернута трапеція
+        { clipPath: "polygon(0% 20%, 100% 0%, 85% 100%, 10% 80%)", color: "#f59e0b" },  // 5: Скошений чотирикутник A
+        { clipPath: "polygon(20% 0%, 100% 20%, 80% 100%, 0% 80%)", color: "#ec4899" },  // 6: Скошений чотирикутник B
+        { clipPath: "polygon(15% 5%, 85% 5%, 85% 95%, 15% 95%)",  color: "#3b82f6" },  // 7: Прямокутник
+        { clipPath: "polygon(5% 15%, 95% 15%, 95% 85%, 5% 85%)",  color: "#84cc16" }   // 8: Широкий блок
+      ];
+
+      constructor(target, options = {}) {
+        this.#containerEl = typeof target === 'string' ? document.querySelector(target) : target;
+
+        if (!this.#containerEl) {
+          throw new Error(`[ClipPathSliderService] Контейнер не знайдено: ${target}`);
+        }
+
+        this.#options = {
+          activeClass: 'is-active',
+          startIndex: 0,
+          onChange: null,
+          ...options
+        };
+
+        this.#polygonEl = this.#containerEl.querySelector('#bgPolygon');
+        this.#slides = Array.from(this.#containerEl.querySelectorAll('.slide'));
+        this.#prevBtn = this.#containerEl.querySelector('.nav-btn.prev');
+        this.#nextBtn = this.#containerEl.querySelector('.nav-btn.next');
+        this.#dotsContainer = this.#containerEl.querySelector('.pagination');
+
+        this.#currentIndex = this.#options.startIndex;
+
+        this.#init();
+      }
+
+      goTo(index) {
+        let targetIndex = index;
+
+        if (index < 0) {
+          targetIndex = this.#slides.length - 1;
+        } else if (index >= this.#slides.length) {
+          targetIndex = 0;
+        }
+
+        this.#currentIndex = targetIndex;
+        this.#updateDOM();
+        this.#dispatchEvents();
+
+        return this;
+      }
+
+      next() { return this.goTo(this.#currentIndex + 1); }
+      prev() { return this.goTo(this.#currentIndex - 1); }
+
+      destroy() {
+        this.#controller.abort();
+        this.#containerEl = null;
+        this.#polygonEl = null;
+        this.#slides = [];
+        this.#dots = [];
+      }
+
+      #init() {
+        this.#renderDots();
+        this.#updateDOM();
+        this.#initEvents();
+      }
+
+      #updateDOM() {
+        const activeClass = this.#options.activeClass;
+        const currentTheme = this.#slideThemes[this.#currentIndex];
+
+        // Змінюємо CSS-властивості через стиль елемента (запускає плавну CSS transition)
+        if (this.#polygonEl && currentTheme) {
+          this.#polygonEl.style.clipPath = currentTheme.clipPath;
+          this.#polygonEl.style.backgroundColor = currentTheme.color;
+        }
+
+        // Перемикаємо текст/номер слайду
+        this.#slides.forEach((slide, idx) => {
+          if (idx === this.#currentIndex) {
+            slide.classList.add(activeClass);
+          } else {
+            slide.classList.remove(activeClass);
+          }
+        });
+
+        // Оновлюємо крапки
+        this.#dots.forEach((dot, idx) => {
+          if (idx === this.#currentIndex) {
+            dot.classList.add(activeClass);
+          } else {
+            dot.classList.remove(activeClass);
+          }
+        });
+      }
+
+      #renderDots() {
+        if (!this.#dotsContainer) return;
+
+        this.#dotsContainer.innerHTML = '';
+        this.#dots = this.#slides.map((_, index) => {
+          const dot = document.createElement('button');
+          dot.classList.add('dot');
+          dot.setAttribute('aria-label', `Слайд ${index + 1}`);
+          this.#dotsContainer.appendChild(dot);
+          return dot;
+        });
+      }
+
+      #initEvents() {
+        const { signal } = this.#controller;
+
+        this.#nextBtn?.addEventListener('click', () => this.next(), { signal });
+        this.#prevBtn?.addEventListener('click', () => this.prev(), { signal });
+
+        this.#dotsContainer?.addEventListener('click', (e) => {
+          const dotIndex = this.#dots.indexOf(e.target);
+          if (dotIndex !== -1) this.goTo(dotIndex);
+        }, { signal });
+
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'ArrowRight') this.next();
+          if (e.key === 'ArrowLeft') this.prev();
+        }, { signal });
+      }
+
+      #dispatchEvents() {
+        if (typeof this.#options.onChange === 'function') {
+          this.#options.onChange(this.#currentIndex, this);
+        }
+
+        this.#containerEl.dispatchEvent(new CustomEvent('slider:change', {
+          bubbles: true,
+          detail: { index: this.#currentIndex, instance: this }
+        }));
+      }
+    }
+
+    // Запуск слайдера
+    document.addEventListener('DOMContentLoaded', () => {
+      const slider = new ClipPathSliderService('#singlePolygonSlider');
+    });
+  </script>
+</body>
+</html>

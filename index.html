@@ -22,7 +22,7 @@
       min-height: 100vh;
     }
 
-    /* Батьківський контейнер */
+    /* Контейнер слайдера */
     .slider-container {
       position: relative;
       width: 800px;
@@ -33,26 +33,26 @@
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
     }
 
-    /* --- ЄДИНИЙ ФОНОВИЙ ПОЛІГОН (ПРИТИСНУТИЙ ДО ПРАВОГО КРАЮ) --- */
+    /* --- ЄДИНИЙ ФОНОВИЙ ПОЛІГОН (ЗФІКСОВАНИЙ ПРАВОРУЧ) --- */
     #bgPolygon {
       position: absolute;
       top: 0;
-      right: 0; /* Фіксуємо правий бік НА МІСЦІ */
+      right: 0; /* Правий бік на місці */
       height: 100%;
       z-index: 1;
 
-      /* Початковий стан: 0% ширини біля правого краю, повністю непрозорий (1) */
+      /* Початковий стан: 0px ширини, повністю НЕпрозорий (1) */
       width: 0%;
       opacity: 1;
 
-      /* Анімація розширення ширини вліво/вправо та зникнення прозорості */
+      /* Плавний перехід розширення та зникнення */
       transition: width 0.9s cubic-bezier(0.25, 1, 0.5, 1),
                   opacity 0.9s cubic-bezier(0.5, 0, 0.75, 0),
                   clip-path 0.9s ease-out,
                   background-color 0.9s ease-out;
     }
 
-    /* Стан розгортання: ширина 100%, прозорість 0 */
+    /* Кінцевий стан: 100% ширини, повністю ПРОЗОРИЙ (0) */
     #bgPolygon.is-animating {
       width: 100%;
       opacity: 0;
@@ -81,13 +81,13 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      opacity: 1;
+      opacity: 0;
       transform: scale(0.9);
       transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
     }
 
     .slide.is-active {
-      opacity: 0;
+      opacity: 1;
       transform: scale(1);
     }
 
@@ -164,7 +164,7 @@
 <body>
 
   <div class="slider-container" id="singlePolygonSlider">
-    <!-- Полігон, зафіксований праворуч -->
+    <!-- Полігон, який зафіксований праворуч -->
     <div id="bgPolygon"></div>
 
     <div class="slides-wrapper">
@@ -272,21 +272,21 @@
         const currentTheme = this.#slideThemes[this.#currentIndex];
 
         if (this.#polygonEl && currentTheme) {
-          // КРОК 1: Скидаємо блок праворуч в 0% ширини і opacity = 1 без анімації
+          // КРОК 1: Миттєве скидання в width: 0% та opacity: 1 (непрозорий)
           this.#polygonEl.classList.add('no-transition');
           this.#polygonEl.classList.remove('is-animating');
           this.#polygonEl.style.clipPath = currentTheme.clipPath;
           this.#polygonEl.style.backgroundColor = currentTheme.color;
 
-          // КРОК 2: Примусовий Reflow, щоб зафіксувати початковий стан (right: 0, width: 0%, opacity: 1)
+          // КРОК 2: Примусове перемалювання DOM (Reflow)
           void this.#polygonEl.offsetHeight;
 
-          // КРОК 3: Запускаємо анімацію — лівий бік їде ліворуч (ширина росте до 100%), а прозорість падає до 0
+          // КРОК 3: Запуск анімації — росте до width: 100% і зникає до opacity: 0
           this.#polygonEl.classList.remove('no-transition');
           this.#polygonEl.classList.add('is-animating');
         }
 
-        // Оновлення текстових слайдів
+        // Оновлення тексту
         this.#slides.forEach((slide, idx) => {
           if (idx === this.#currentIndex) {
             slide.classList.add(activeClass);
