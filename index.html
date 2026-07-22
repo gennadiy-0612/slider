@@ -2,27 +2,192 @@
 <html lang="uk">
 
 <head>
-    <meta charset="UTF-8">
     <link rel="icon" type="image/x-icon" href="img/favicon.ico">
-
-
-    
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Demo</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>ElementToggleService Demo</title>
+
+    <style>
+        /* Загальні стилі */
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* 1. Стилі для темної теми */
+        body.dark-theme {
+            background-color: #1a1a1a;
+            color: #ffffff;
+        }
+
+        /* 2. Стилі для сайдбару */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            /* Схований за правою межею екрана */
+            width: 260px;
+            height: 100vh;
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
+            transition: right 0.3s ease-in-out;
+        }
+
+        /* Стан, коли клас is-open додано через наш JS-клас */
+        .sidebar.is-open {
+            right: 0;
+            /* Виїжджає на екран */
+        }
+
+        /* Стилі для кнопок */
+        .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 6px;
+            background-color: #3498db;
+            color: white;
+            margin-right: 10px;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+        }
+    </style>
 </head>
 
 <body>
 
-<div id="myModal" class="modal" aria-hidden="true">
-  <div class="modal-dialog">
-    <h2 class="modal-title">Заголовок за замовчуванням</h2>
-    <div class="modal-body">Контент...</div>
-    <button data-close class="btn-close">Закрити</button>
-  </div>
-</div>
+    <h1>Демонстрація ElementToggleService</h1>
+    <p>Клацайте на кнопки, щоб перемикати CSS-класи у відповідних елементів.</p>
 
-    <script src="js/main.js" defer></script>
+    <!-- Кнопки-тригери (trigger) -->
+    <button id="themeBtn" class="btn">Переключити тему</button>
+    <button id="sidebarBtn" class="btn">Відкрити/Закрити сайдбар</button>
+
+    <!-- Цільовий елемент 1 (target): Сайдбар -->
+    <aside id="mainSidebar" class="sidebar">
+        <h2>Сайдбар</h2>
+        <p>Це бічна панель, яка виїжджає при додаванні класу <code>.is-open</code>.</p>
+    </aside>
+
+    <!-- Підключаємо файл з класом або пишемо скрипт прямо тут -->
+    <script>
+        // Вставляємо наш клас ElementToggleService
+        class ElementToggleService {
+            #triggerEl;
+            #targetEl;
+            #options;
+            #isActive = false;
+            #controller = new AbortController();
+
+            constructor(trigger, target, options = {}) {
+                this.#triggerEl = typeof trigger === 'string' ? document.querySelector(trigger) : trigger;
+                this.#targetEl = typeof target === 'string' ? document.querySelector(target) : target;
+
+                if (!this.#triggerEl) throw new Error(`[ElementToggleService] Тригер не знайдено: ${trigger}`);
+                if (!this.#targetEl) throw new Error(`[ElementToggleService] Ціль не знайдено: ${target}`);
+
+                this.#options = {
+                    toggleClass: 'active',
+                    onToggle: null,
+                    onActivate: null,
+                    onDeactivate: null,
+                    ...options
+                };
+
+                this.#initEvents();
+            }
+
+            get isActive() { return this.#isActive; }
+            get target() { return this.#targetEl; }
+            get trigger() { return this.#triggerEl; }
+
+            toggle() {
+                return this.#isActive ? this.deactivate() : this.activate();
+            }
+
+            activate() {
+                if (this.#isActive) return this;
+                this.#isActive = true;
+                this.#targetEl.classList.add(this.#options.toggleClass);
+                this.#triggerCallbacks('activate');
+                this.#dispatchCustomEvent('element:activate');
+                return this;
+            }
+
+            deactivate() {
+                if (!this.#isActive) return this;
+                this.#isActive = false;
+                this.#targetEl.classList.remove(this.#options.toggleClass);
+                this.#triggerCallbacks('deactivate');
+                this.#dispatchCustomEvent('element:deactivate');
+                return this;
+            }
+
+            destroy() {
+                this.deactivate();
+                this.#controller.abort();
+                this.#triggerEl = null;
+                this.#targetEl = null;
+                this.#options = null;
+            }
+
+            #initEvents() {
+                const { signal } = this.#controller;
+                this.#triggerEl.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.toggle();
+                }, { signal });
+            }
+
+            #triggerCallbacks(action) {
+                if (typeof this.#options.onToggle === 'function') {
+                    this.#options.onToggle(this.#isActive, this);
+                }
+                if (action === 'activate' && typeof this.#options.onActivate === 'function') {
+                    this.#options.onActivate(this);
+                } else if (action === 'deactivate' && typeof this.#options.onDeactivate === 'function') {
+                    this.#options.onDeactivate(this);
+                }
+            }
+
+            #dispatchCustomEvent(eventName) {
+                if (!this.#targetEl) return;
+                const event = new CustomEvent(eventName, {
+                    bubbles: true,
+                    cancelable: true,
+                    detail: { isActive: this.#isActive, instance: this }
+                });
+                this.#targetEl.dispatchEvent(event);
+            }
+        }
+
+        // --- ІНІЦІАЛІЗАЦІЯ ПІСЛЯ ЗАВАНТАЖЕННЯ DOM ---
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // 1. Приклад для ТЕМНОЇ ТЕМИ:
+            // Клікаємо на '#themeBtn' -> змінюємо клас 'dark-theme' у елемента 'body'
+            const themeToggle = new ElementToggleService('#themeBtn', 'body', {
+                toggleClass: 'dark-theme',
+                onActivate: () => console.log('Активовано темну тему!'),
+                onDeactivate: () => console.log('Повернуто світлу тему!')
+            });
+
+            // 2. Приклад для САЙДБАРУ:
+            // Клікаємо на '#sidebarBtn' -> додаємо/прибираємо клас 'is-open' у '#mainSidebar'
+            const sidebarToggle = new ElementToggleService('#sidebarBtn', '#mainSidebar', {
+                toggleClass: 'is-open'
+            });
+
+        });
+    </script>
 </body>
 
 </html>
