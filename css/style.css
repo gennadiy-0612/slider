@@ -1,16 +1,155 @@
 
-.brick {
-  background-color: #c5c5c5;
-  width: 300px;
-  margin: auto;
-}
-.control {
-  text-align: center;
-}
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-.info {
-  text-align: center;
-}
-.hide{
-  opacity: 0;
-}
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: #0f172a;
+      color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    /* Батьківський контейнер */
+    .slider-container {
+      position: relative;
+      width: 800px;
+      height: 450px;
+      background-color: #020617;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    }
+
+    /* --- ЄДИНИЙ ФОНОВИЙ ПОЛІГОН (ПРИТИСНУТИЙ ДО ПРАВОГО КРАЮ) --- */
+    #bgPolygon {
+      position: absolute;
+      top: 0;
+      right: 0; /* Фіксуємо правий бік НА МІСЦІ */
+      height: 100%;
+      z-index: 1;
+
+      /* Початковий стан: 0% ширини біля правого краю, повністю непрозорий (1) */
+      width: 0%;
+      opacity: 1;
+
+      /* Анімація розширення ширини вліво/вправо та зникнення прозорості */
+      transition: width 0.9s cubic-bezier(0.25, 1, 0.5, 1),
+                  opacity 0.9s cubic-bezier(0.5, 0, 0.75, 0),
+                  clip-path 0.9s ease-out,
+                  background-color 0.9s ease-out;
+    }
+
+    /* Стан розгортання: ширина 100%, прозорість 0 */
+    #bgPolygon.is-animating {
+      width: 100%;
+      opacity: 0;
+    }
+
+    /* Миттєве скидання анімації */
+    #bgPolygon.no-transition {
+      transition: none !important;
+    }
+
+    /* --- КОНТЕНТ СЛАЙДІВ --- */
+    .slides-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transform: scale(0.9);
+      transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+    }
+
+    .slide.is-active {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .slide-content {
+      font-size: 7rem;
+      font-weight: 900;
+      color: #ffffff;
+      text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      user-select: none;
+    }
+
+    /* --- КНОПКИ ТА ПАГІНАЦІЯ --- */
+    .nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.3rem;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+
+    .nav-btn:hover {
+      background: #ffffff;
+      color: #0f172a;
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .nav-btn.prev { left: 24px; }
+    .nav-btn.next { right: 24px; }
+
+    .pagination {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+      z-index: 10;
+      background: rgba(15, 23, 42, 0.6);
+      padding: 10px 20px;
+      border-radius: 30px;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.3);
+      border: none;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .dot.is-active {
+      background-color: #ffffff;
+      transform: scale(1.4);
+      border-radius: 8px;
+    }
+  
