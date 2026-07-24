@@ -1,9 +1,9 @@
 class ElHtml {
-  constructor({ tag, parent, class: className, textContent, listen = [], ...attrs }) {
+  constructor({ tag, parent, Class, textContent, listen = [], ...attrs }) {
     this.config = {
       tag,
       parent,
-      className,
+      Class,
       textContent,
       listen: Array.isArray(listen) ? listen : [listen],
       attrs
@@ -11,10 +11,10 @@ class ElHtml {
   }
 
   SHOW() {
-    const { tag, parent, className, textContent, listen, attrs } = this.config;
+    const { tag, parent, Class, textContent, listen, attrs } = this.config;
     const el = document.createElement(tag);
 
-    if (className) el.className = className;
+    if (Class) el.className = Class;
     if (textContent) el.textContent = textContent;
     Object.assign(el, attrs);
 
@@ -37,8 +37,8 @@ class ElHtml {
 
 // Готові обробники подій
 ElHtml.deals = {
-  changeClass: (e, className) => {
-    if (e && e.target) { e.target.className = className };
+  changeClass: (e, Class) => {
+    if (e && e.target) { e.target.className = Class };
   },
 };
 
@@ -46,7 +46,7 @@ ElHtml.deals = {
 document.addEventListener("DOMContentLoaded", () => {
   ElHtml.SHOW_ALL([
     {
-      parent: ".slider", tag: "p", class: "password", textContent: "My Text",
+      parent: ".slider", tag: "p", Class: "password", textContent: "My Text",
       listen: [
         { event: "click", deal: e => ElHtml.deals.changeClass(e, "click") },
         { event: "mouseover", deal: e => ElHtml.deals.changeClass(e, "over") }
