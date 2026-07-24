@@ -1,5 +1,6 @@
 class ElHtml {
-  constructor({ tag, parent, class: className, classes, textContent, listen = [], ...attrs }) {
+  // 1. Повернули значення за замовчуванням tag = "div"
+  constructor({ tag = "div", parent, class: className, classes, textContent, listen = [], ...attrs }) {
     this.config = {
       tag,
       parent,
@@ -20,7 +21,6 @@ class ElHtml {
 
     listen.forEach(({ event, deal }) => {
       if (!event || !deal) return;
-      // Якщо deal — це рядок, беремо функцію з ElHtml.deals, інакше використовуємо сам deal
       const handler = typeof deal === "string" ? ElHtml.deals[deal] : deal;
       if (typeof handler === "function") {
         el.addEventListener(event, handler);
@@ -38,41 +38,41 @@ class ElHtml {
 
 // Готові обробники подій
 ElHtml.deals = {
-  // Тепер приймає і об'єкт події e, і потрібний клас
+  // Метод для зміни CSS-класу
   changeClass: (e, className) => {
-    if (e && e.target) e.target.setAttribute("class", className)
-  }
+    if (e && e.target) e.target.className = className;
+  },
+  // 2. Додано логер logThis, який викликався для span
+  logThis: () => console.log('Клік на span!')
 };
 
 // ВИКОРИСТАННЯ
 document.addEventListener("DOMContentLoaded", () => {
   ElHtml.SHOW_ALL([
     {
-      parent: ".slider", 
-      tag: "img", 
-      class: "slider-img", 
-      src: "img/w.png", 
+      parent: ".slider",
+      tag: "img",
+      class: "slider-img",
+      src: "img/w.png",
       alt: "Slider Image 1",
-      // Передаємо `e` першим аргументом
-      listen: { event: "click", deal: e => ElHtml.deals.changeColor(e, "red") }
+      listen: { event: "click", deal: e => ElHtml.deals.changeCLass(e, "highlight") }
     },
     {
-      parent: ".slider", 
-      tag: "p", 
-      class: "password", 
-      textContent: "Password: 12345", 
+      parent: ".slider",
+      tag: "p",
+      class: "password",
+      textContent: "Password: 12345",
       listen: [
-        { event: "mouseenter", deal: e => ElHtml.deals.changeColor(e, "red") },
-        { event: "mouseleave", deal: e => ElHtml.deals.changeColor(e, "green") }
+        { event: "click", deal: e => ElHtml.deals.changeCLass(e, "highlight") },
+        { event: "mouseover", deal: e => ElHtml.deals.changeCLass(e, "pair") }
       ]
     },
-    { 
-      parent: ".slider", 
-      tag: "span", 
-      class: "password", 
+    {
+      parent: ".slider",
+      tag: "span",
+      class: "truth",
       textContent: " (копіювати)",
-      // Приклад використання функції з deals за її назвою (рядком)
-      listen: { event: "click", deal: "logThis" }
+      listen: { event: "mousedown", deal: e => ElHtml.deals.changeClass(e, "yy") }
     }
   ]);
 });
