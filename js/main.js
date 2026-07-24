@@ -1,15 +1,15 @@
 class ElHtml {
   #tag; #parent; #class; #attrs = {}; #listen = {}; #textContent;
 
-constructor(config) {
-  for (const [key, value] of Object.entries(config)) {
-    if (key === "tag") this.#tag = value;
-    else if (key === "parent") this.#parent = value;
-    else if (key === "class") this.#class = value;
-    else if (key === "textContent") this.#textContent = value;
-    else this.#attrs[key] = value;
+  constructor(config) {
+    for (const [key, value] of Object.entries(config)) {
+      if (key === "tag") this.#tag = value;
+      else if (key === "parent") this.#parent = value;
+      else if (key === "class") this.#class = value;
+      else if (key === "textContent") this.#textContent = value;
+      else this.#attrs[key] = value;
+    }
   }
-}
 
   SHOW() {
     const el = document.createElement(this.#tag || "div");
@@ -22,13 +22,11 @@ constructor(config) {
     parentEl.appendChild(el);
     return el;
   }
- static ADD_LISTENER(el, event, deal) {
+  static ADD_LISTENER(el, event, deal) {
     el.addEventListener(event, deal);
   }
-static makeIt(ttt) {
-  console.log(ttt);
-}
-  // СТАТИЧНИЙ МЕТОД: приймає масив конфігурацій і показує всі
+  static makeIt() { console.log(this); }
+
   static SHOW_ALL(configsArray) {
     return configsArray.map(config => new ElHtml(config).SHOW());
   }
