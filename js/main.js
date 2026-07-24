@@ -1,9 +1,9 @@
 class ElHtml {
-  constructor({ tag, parent, class: className, classes, textContent, listen = [], ...attrs }) {
+  constructor({ tag, parent, class: className, textContent, listen = [], ...attrs }) {
     this.config = {
       tag,
       parent,
-      className: className || classes,
+      className,
       textContent,
       listen: Array.isArray(listen) ? listen : [listen],
       attrs
