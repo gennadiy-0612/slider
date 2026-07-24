@@ -38,11 +38,10 @@ class ElHtml {
 
 // Готові обробники подій
 ElHtml.deals = {
-  // Тепер приймає і об'єкт події e, і потрібний колір
-  changeColor: (e, color) => {
-    if (e && e.target) e.target.style.color = color;
-  },
-  logThis: () => console.log(this)
+  // Тепер приймає і об'єкт події e, і потрібний клас
+  changeClass: (e, className) => {
+    if (e && e.target) e.target.setAttribute("class", className)
+  }
 };
 
 // ВИКОРИСТАННЯ
@@ -64,7 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
       textContent: "Password: 12345", 
       listen: [
         { event: "mouseenter", deal: e => ElHtml.deals.changeColor(e, "red") },
-        { event: "mouseleave", deal: e => ElHtml.deals.changeColor(e, "black") }
+        { event: "mouseleave", deal: e => ElHtml.deals.changeColor(e, "green") }
       ]
     },
     { 
