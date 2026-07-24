@@ -1,5 +1,5 @@
 class ElHtml {
-  constructor({ tag = "div", parent, class: className, classes, textContent, listen = [], ...attrs }) {
+  constructor({ tag, parent, class: className, classes, textContent, listen = [], ...attrs }) {
     this.config = {
       tag,
       parent,
@@ -18,7 +18,14 @@ class ElHtml {
     if (textContent) el.textContent = textContent;
     Object.assign(el, attrs);
 
-    listen.forEach(({ event, deal }) => event && deal && el.addEventListener(event, deal));
+    listen.forEach(({ event, deal }) => {
+      if (!event || !deal) return;
+      // Якщо deal — це рядок, беремо функцію з ElHtml.deals, інакше використовуємо сам deal
+      const handler = typeof deal === "string" ? ElHtml.deals[deal] : deal;
+      if (typeof handler === "function") {
+        el.addEventListener(event, handler);
+      }
+    });
 
     (document.querySelector(parent) || document.body).appendChild(el);
     return el;
@@ -28,23 +35,45 @@ class ElHtml {
     return configs.map(cfg => new ElHtml(cfg).SHOW());
   }
 }
+
+// Готові обробники подій
 ElHtml.deals = {
-  changeColor: (color) => e.target.style.color = color,
-  logThis: () => console.log('oo')
+  // Тепер приймає і об'єкт події e, і потрібний колір
+  changeColor: (e, color) => {
+    if (e && e.target) e.target.style.color = color;
+  },
+  logThis: () => console.log(this)
 };
-// ВИКОРИСТАННЯ (залишилося таким самим)
+
+// ВИКОРИСТАННЯ
 document.addEventListener("DOMContentLoaded", () => {
   ElHtml.SHOW_ALL([
     {
-      parent: ".slider", tag: "img", class: "slider-img", src: "img/w.png", alt: "Slider Image 1",
-      listen: { event: "click", deal: () => ElHtml.deals.changeColor("red") }
+      parent: ".slider", 
+      tag: "img", 
+      class: "slider-img", 
+      src: "img/w.png", 
+      alt: "Slider Image 1",
+      // Передаємо `e` першим аргументом
+      listen: { event: "click", deal: e => ElHtml.deals.changeColor(e, "red") }
     },
     {
-      parent: ".slider", tag: "p", class: "password", textContent: "Password: 12345", listen: [
-        { event: "mouseenter", deal: e => ElHtml.deals.changeColor("red") },
-        { event: "mouseleave", deal: e => e.target.style.color = "black" }
+      parent: ".slider", 
+      tag: "p", 
+      class: "password", 
+      textContent: "Password: 12345", 
+      listen: [
+        { event: "mouseenter", deal: e => ElHtml.deals.changeColor(e, "red") },
+        { event: "mouseleave", deal: e => ElHtml.deals.changeColor(e, "black") }
       ]
     },
-    { parent: ".slider", tag: "span", class: "password", textContent: " (копіювати)" }
+    { 
+      parent: ".slider", 
+      tag: "span", 
+      class: "password", 
+      textContent: " (копіювати)",
+      // Приклад використання функції з deals за її назвою (рядком)
+      listen: { event: "click", deal: "logThis" }
+    }
   ]);
 });
