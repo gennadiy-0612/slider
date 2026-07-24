@@ -1,42 +1,50 @@
 class ElHtml {
-  #tag; #parent; #class; #attrs = {}; #listen = {}; #textContent;
-
-  constructor(config) {
-    for (const [key, value] of Object.entries(config)) {
-      if (key === "tag") this.#tag = value;
-      else if (key === "parent") this.#parent = value;
-      else if (key === "class") this.#class = value;
-      else if (key === "textContent") this.#textContent = value;
-      else this.#attrs[key] = value;
-    }
+  constructor({ tag = "div", parent, class: className, classes, textContent, listen = [], ...attrs }) {
+    this.config = {
+      tag,
+      parent,
+      className: className || classes,
+      textContent,
+      listen: Array.isArray(listen) ? listen : [listen],
+      attrs
+    };
   }
 
   SHOW() {
-    const el = document.createElement(this.#tag || "div");
-    if (this.#class) el.className = this.#class;
-    Object.assign(el, this.#attrs);
-    if (this.#listen.event) {
-      el.addEventListener(this.#listen.event, this.#listen.deal);
-    }
-    const parentEl = document.querySelector(this.#parent) || document.body;
-    parentEl.appendChild(el);
+    const { tag, parent, className, textContent, listen, attrs } = this.config;
+    const el = document.createElement(tag);
+
+    if (className) el.className = className;
+    if (textContent) el.textContent = textContent;
+    Object.assign(el, attrs);
+
+    listen.forEach(({ event, deal }) => event && deal && el.addEventListener(event, deal));
+
+    (document.querySelector(parent) || document.body).appendChild(el);
     return el;
   }
-  static ADD_LISTENER(el, event, deal) {
-    el.addEventListener(event, deal);
-  }
-  static makeIt() { console.log(this); }
 
-  static SHOW_ALL(configsArray) {
-    return configsArray.map(config => new ElHtml(config).SHOW());
+  static SHOW_ALL(configs) {
+    return configs.map(cfg => new ElHtml(cfg).SHOW());
   }
 }
-
-// ВИКОРИСТАННЯ В 1 РЯДОК:
+ElHtml.deals = {
+  changeColor: (color) => e.target.style.color = color,
+  logThis: () => console.log('oo')
+};
+// ВИКОРИСТАННЯ (залишилося таким самим)
 document.addEventListener("DOMContentLoaded", () => {
   ElHtml.SHOW_ALL([
-    { parent: ".slider", tag: "img", class: "slider-img", src: "img/w.png", alt: "Slider Image 1", listen: { event: "click", deal: () => console.log("Image clicked!") } },
-    { parent: ".slider", tag: "p", class: "password", textContent: "Password: 12345" },
-    { parent: ".slider", tag: "span", class: "password" }
+    {
+      parent: ".slider", tag: "img", class: "slider-img", src: "img/w.png", alt: "Slider Image 1",
+      listen: { event: "click", deal: () => ElHtml.deals.changeColor("red") }
+    },
+    {
+      parent: ".slider", tag: "p", class: "password", textContent: "Password: 12345", listen: [
+        { event: "mouseenter", deal: e => ElHtml.deals.changeColor("red") },
+        { event: "mouseleave", deal: e => e.target.style.color = "black" }
+      ]
+    },
+    { parent: ".slider", tag: "span", class: "password", textContent: " (копіювати)" }
   ]);
-})
+});
