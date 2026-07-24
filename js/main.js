@@ -1,6 +1,5 @@
 class ElHtml {
-  // 1. Повернули значення за замовчуванням tag = "div"
-  constructor({ tag = "div", parent, class: className, classes, textContent, listen = [], ...attrs }) {
+  constructor({ tag, parent, class: className, classes, textContent, listen = [], ...attrs }) {
     this.config = {
       tag,
       parent,
@@ -38,41 +37,20 @@ class ElHtml {
 
 // Готові обробники подій
 ElHtml.deals = {
-  // Метод для зміни CSS-класу
   changeClass: (e, className) => {
-    if (e && e.target) e.target.className = className;
+    if (e && e.target) { e.target.className = className };
   },
-  // 2. Додано логер logThis, який викликався для span
-  logThis: () => console.log('Клік на span!')
 };
 
 // ВИКОРИСТАННЯ
 document.addEventListener("DOMContentLoaded", () => {
   ElHtml.SHOW_ALL([
     {
-      parent: ".slider",
-      tag: "img",
-      class: "slider-img",
-      src: "img/w.png",
-      alt: "Slider Image 1",
-      listen: { event: "click", deal: e => ElHtml.deals.changeCLass(e, "highlight") }
-    },
-    {
-      parent: ".slider",
-      tag: "p",
-      class: "password",
-      textContent: "Password: 12345",
+      parent: ".slider", tag: "p", class: "password", textContent: "My Text",
       listen: [
-        { event: "click", deal: e => ElHtml.deals.changeCLass(e, "highlight") },
-        { event: "mouseover", deal: e => ElHtml.deals.changeCLass(e, "pair") }
+        { event: "click", deal: e => ElHtml.deals.changeClass(e, "click") },
+        { event: "mouseover", deal: e => ElHtml.deals.changeClass(e, "over") }
       ]
-    },
-    {
-      parent: ".slider",
-      tag: "span",
-      class: "truth",
-      textContent: " (копіювати)",
-      listen: { event: "mousedown", deal: e => ElHtml.deals.changeClass(e, "yy") }
     }
   ]);
 });
